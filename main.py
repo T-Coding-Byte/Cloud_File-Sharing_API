@@ -1,12 +1,15 @@
 from fileinput import filename
 from genericpath import exists
 from os import name
+from storage.local_storage import LocalStorage
 from fastapi import FastAPI, HTTPException, File, UploadFile
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from pathlib import Path
+
 app = FastAPI()
 items = []
+storage = LocalStorage()
 
 @app.get("/")
 def root():
@@ -24,18 +27,13 @@ def create_item(item: str):
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
     contents = await file.read()
-    upload_dir = Path("uploads")
-    upload_dir.mkdir(exist_ok=True)
-
-    with open(upload_dir / file.filename, "wb") as target:
-        target.write(contents)
-
+    storage.save(file.filename, contents)
     return {"filename": file.filename}
 
 @app.get("/downloads/{filename}")
 def download_file(filename: str):
-    target_path = Path("uploads") / filename
-    if target_path.exists():
+    target_path = storage.get(filename)
+    if target_path:
         return FileResponse(target_path)
     else:
         raise HTTPException(status_code=404, detail = "File {filename} + not found")
