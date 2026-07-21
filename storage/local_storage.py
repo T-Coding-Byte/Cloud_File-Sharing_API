@@ -1,8 +1,8 @@
 from pathlib import Path
+from .base import Storage #potential issue, solve via from base import Storage
 
-from fastapi.responses import FileResponse
 
-class LocalStorage:
+class LocalStorage(Storage):
     def __init__(self):
         self.upload_dir = Path("uploads")
         self.upload_dir.mkdir(exist_ok=True)
