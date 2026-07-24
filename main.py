@@ -8,7 +8,6 @@ from pydantic import BaseModel
 from pathlib import Path
 
 app = FastAPI()
-items = []
 storage = LocalStorage()
 
 @app.get("/")
@@ -18,11 +17,6 @@ def root():
 @app.get("/health")
 def status():
     return{"status": "okay"}
-
-@app.post("/items")
-def create_item(item: str):
-    items.append(item)
-    return item
 
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
@@ -40,15 +34,9 @@ def download_file(filename: str):
     
 @app.get("/files")
 def get_files():
-    target_path = Path("uploads")
-    files = []
-    for file in target_path.iterdir():
-        files.append(file.name)
-    return files
+    return storage.list_files()
 
-@app.get("/items")
-def get_items():
-    return items
+
 
 #activate uvicorn server:
 #uvicorn main:app --reload
