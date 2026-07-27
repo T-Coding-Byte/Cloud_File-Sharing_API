@@ -18,6 +18,7 @@ def root():
 def status():
     return{"status": "okay"}
 
+#handle exceptions here
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
     contents = await file.read()
