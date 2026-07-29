@@ -24,3 +24,15 @@ class LocalStorage(Storage):
         for file in self.upload_dir.iterdir():
             content.append(file.name)
         return content
+
+    def delete(self, filename):
+        file_path = Path("uploads") / filename
+
+        if file_path.exists():
+            file_path.unlink()
+
+    def rename(self, old_name, new_name):
+        old_path = Path("uploads") / old_name
+        new_path = Path("uploads") / new_name
+
+        old_path.rename(new_path)
