@@ -9,7 +9,7 @@ class Base(DeclarativeBase):
 class File(Base):
     __tablename__ = "files"
     id: Mapped[int] = mapped_column(primary_key=True)
-    filename: Mapped[str] = mapped_column(String)
-    category: Mapped[str] = mapped_column(String)
-    size: Mapped[int] = mapped_column(BigInteger)
-    #path: Mapped[str] = mapped_column(String)
+    filename: Mapped[str] = mapped_column(String, unique = True)
+    category: Mapped[str] = mapped_column(String, nullable = False)
+    size: Mapped[int] = mapped_column(BigInteger, nullable = False)
+    

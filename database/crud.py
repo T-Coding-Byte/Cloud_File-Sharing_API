@@ -42,6 +42,19 @@ def delete_file(file_name):
         session.commit()
 
 
+def file_exists(file_name):
+    with SessionFactory() as session:
+        file = session.execute(
+            select(File).where(File.filename == file_name)
+        ).scalar_one_or_none()
+
+        return file is not None
+
+def list_files():
+    with SessionFactory() as session:
+        files = session.execute(select(File)).scalars().all()
+        
+        return files
 
 
 

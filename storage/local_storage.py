@@ -26,13 +26,16 @@ class LocalStorage(Storage):
         return content
 
     def delete(self, filename):
-        file_path = Path("uploads") / filename
+        file_path = self.upload_dir / filename
 
         if file_path.exists():
             file_path.unlink()
 
     def rename(self, old_name, new_name):
-        old_path = Path("uploads") / old_name
-        new_path = Path("uploads") / new_name
+        old_path = self.upload_dir / old_name
+        new_path = self.upload_dir / new_name
 
         old_path.rename(new_path)
+
+    def get_size(self, filename):
+        return (self.upload_dir/filename).stat().st_size

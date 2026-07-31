@@ -23,3 +23,7 @@ class Storage(ABC):
     @abstractmethod
     def rename(self, old_name, new_name):
         pass
+
+    @abstractmethod
+    def get_size(self, filename):
+        pass
