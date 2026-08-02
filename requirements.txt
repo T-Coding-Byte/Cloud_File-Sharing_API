@@ -5,3 +5,4 @@ psycopg
 pydantic
 python-multipart
 python-dotenv
+boto3
