@@ -9,13 +9,13 @@ import database.crud as crud
 import services.file_service as file_service
 
 from authentication.auth import hash_password, verify_password
-from authentication.schemas import loginRequest, passwordSetup
+from authentication.schemas import loginRequest, passwordSetup, PasswordReset
 from authentication.dependancies import get_current_user
 from database.connection import engine
 from database.models import Base
 
 Base.metadata.create_all(bind=engine)
-
+RESET_KEY = os.getenv("PASSWORD_RESET_KEY")
 
 if os.getenv("STORAGE_TYPE") == "s3":
     storage = s3_storage()
@@ -239,6 +239,22 @@ def protected_route(
     return {
         "message": "You are authenticated",
         "user": user
+    }
+
+@app.post("/auth/reset-password")
+def reset_password(data: PasswordReset):
+    if data.reset_key != RESET_KEY:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid reset key"
+        )
+
+    password_hash = hash_password(data.new_password)
+
+    crud.update_password(password_hash)
+
+    return {
+        "message": "Password reset successful"
     }
 
 

@@ -5,3 +5,7 @@ class passwordSetup(BaseModel):
 
 class loginRequest(BaseModel):
     password: str
+    
+class PasswordReset(BaseModel):
+    reset_key: str
+    new_password: str

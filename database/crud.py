@@ -76,4 +76,13 @@ def update_user(new_hash):
         user.password_hash = new_hash
         session.commit()
 
+def update_password(new_password_hash):
+    with SessionFactory() as session:
+        response = session.execute(select(Users)).scalar()
+        if response is None:
+                    return None
+
+        response.password_hash = new_password_hash
+        session.commit()
+
 
