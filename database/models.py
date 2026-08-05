@@ -12,4 +12,9 @@ class File(Base):
     filename: Mapped[str] = mapped_column(String, unique = True)
     category: Mapped[str] = mapped_column(String, nullable = False)
     size: Mapped[int] = mapped_column(BigInteger, nullable = False)
+
+class Users(Base):
+    __tablename__ = "users"
+    id: Mapped[int] = mapped_column(primary_key= True)
+    password_hash: Mapped[str] = mapped_column(String, nullable = False)
     

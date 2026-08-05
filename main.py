@@ -1,11 +1,18 @@
 import os
+from authentication.jwt import create_access_token
 from storage.local_storage import LocalStorage
 from storage.s3_storage import s3_storage
-from fastapi import FastAPI, HTTPException, File, UploadFile
+from fastapi import FastAPI, HTTPException, File, UploadFile, Depends
 from fastapi.responses import Response
 from pathlib import Path
 import database.crud as crud
 import services.file_service as file_service
+
+from authentication.auth import hash_password, verify_password
+from authentication.schemas import loginRequest, passwordSetup
+from authentication.dependancies import get_current_user
+
+
 
 if os.getenv("STORAGE_TYPE") == "s3":
     storage = s3_storage()
@@ -188,6 +195,48 @@ def change_storage(storage_type):
     file_service.sync_storage_and_database(storage)
     return {"message": f"Storage changed to {storage_type}"}
 
+###authentication
+@app.post("/auth/setup")
+def setup_password(data: passwordSetup):
+    user = crud.get_user()
+    if user is not None:
+        raise HTTPException(status_code=400, detail = 'User has already been crated')
+    password_hash = hash_password(data.password)
+
+    crud.create_user(password_hash)
+    return {
+        "message": "User created successfully"
+    }
+
+@app.post("/auth/login")
+def login(data: loginRequest):
+    user = crud.read_user()
+    if user is None:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid credentials"
+        )
+
+    if not verify_password(data.password, user.password_hash):
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid credentials"
+        )
+    access_token = create_access_token(data = {"sub":str(user.id)})
+    return {
+    "access_token": access_token,
+    "token_type": "bearer"
+
+}
+
+@app.get("/protected")
+def protected_route(
+    user = Depends(get_current_user)
+):
+    return {
+        "message": "You are authenticated",
+        "user": user
+    }
 
 
 #activate uvicorn server:

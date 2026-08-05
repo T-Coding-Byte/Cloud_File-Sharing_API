@@ -1,5 +1,5 @@
 from database.connection import engine, SessionFactory
-from database.models import Base, File
+from database.models import Base, File, Users
 from sqlalchemy import Delete, insert, select, delete
 
 
@@ -56,5 +56,24 @@ def list_files():
         
         return files
 
+## authentication methods
+
+def create_user(pass_hash):
+    with SessionFactory() as session:
+        session.execute(insert(Users).values(password_hash = pass_hash))
+        session.commit()
+
+def read_user():
+    with SessionFactory() as session:
+        response = session.execute(select(Users)).scalar()
+        if response is None:
+            return None
+        return response
+
+def update_user(new_hash):
+    with SessionFactory() as session:
+        user = session.execute(select(Users)).scalar()
+        user.password_hash = new_hash
+        session.commit()
 
 
