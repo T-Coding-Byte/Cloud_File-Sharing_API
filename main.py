@@ -11,7 +11,10 @@ import services.file_service as file_service
 from authentication.auth import hash_password, verify_password
 from authentication.schemas import loginRequest, passwordSetup
 from authentication.dependancies import get_current_user
+from database.connection import engine
+from database.models import Base
 
+Base.metadata.create_all(bind=engine)
 
 
 if os.getenv("STORAGE_TYPE") == "s3":
@@ -32,7 +35,7 @@ def status():
 
 
 @app.post("/upload")
-async def upload_file(file: UploadFile = File(...)):
+async def upload_file(file: UploadFile = File(...), user = Depends(get_current_user)):
     try:
         name = file.filename
         if crud.file_exists(name):
@@ -65,7 +68,7 @@ async def upload_file(file: UploadFile = File(...)):
 
 
 @app.get("/file/{filename}")
-def get_file_info(filename:str):
+def get_file_info(filename:str, user = Depends(get_current_user)):
     try:
         file = crud.read_file(filename)
         if file is None:
@@ -91,7 +94,7 @@ def get_file_info(filename:str):
 
 
 @app.put("/file/{filename}")
-def update_file(filename, column, newInfo):
+def update_file(filename, column, newInfo, user = Depends(get_current_user)):
     allowed_columns = {"filename", "category", "size"}
     if column not in allowed_columns:
          raise HTTPException(
@@ -135,7 +138,7 @@ def update_file(filename, column, newInfo):
     return {"message": f"{filename} updated successfully"}
 
 @app.delete("/file/{filename}")
-def delete_file(filename):
+def delete_file(filename, user = Depends(get_current_user)):
 
     
     if not crud.file_exists(filename):
@@ -172,12 +175,12 @@ def download_file(filename: str):
         raise HTTPException(status_code=404, detail = f"File {filename} + not found")
     
 @app.get("/files")
-def get_files():
+def get_files(user = Depends(get_current_user)):
     return storage.list_files()
 
 
 @app.get("/storage/{storage_type}")
-def change_storage(storage_type):
+def change_storage(storage_type, user = Depends(get_current_user)):
     global storage
 
     if storage_type == "local":
@@ -198,7 +201,7 @@ def change_storage(storage_type):
 ###authentication
 @app.post("/auth/setup")
 def setup_password(data: passwordSetup):
-    user = crud.get_user()
+    user = crud.read_user()
     if user is not None:
         raise HTTPException(status_code=400, detail = 'User has already been crated')
     password_hash = hash_password(data.password)
