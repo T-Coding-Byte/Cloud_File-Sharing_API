@@ -7,7 +7,7 @@ from fastapi.responses import Response
 from pathlib import Path
 import database.crud as crud
 import services.file_service as file_service
-
+from contextlib import asynccontextmanager
 from authentication.auth import hash_password, verify_password
 from authentication.schemas import loginRequest, passwordSetup, PasswordReset
 from authentication.dependancies import get_current_user
@@ -22,16 +22,15 @@ if os.getenv("STORAGE_TYPE") == "s3":
 else:
     storage = LocalStorage()
 file_service.sync_storage_and_database(storage)
+
+
 app = FastAPI()
 
 
 @app.get("/")
 def root():
-    return {"message": "default text"}
+    return {"message": "API running. To access the UI, use the Swagger docs available at http://localhost:8000/docs"}
 
-@app.get("/health")
-def status():
-    return{"status": "okay"}
 
 
 @app.post("/upload")
@@ -261,18 +260,20 @@ def reset_password(data: PasswordReset):
 #activate uvicorn server:
 #uvicorn main:app --reload
 #http://127.0.0.1:8000/docs
-if __name__ == "__main__":
-    import uvicorn
-    import webbrowser
-    import threading
 
-    url = "http://127.0.0.1:8000/docs"
+#   if __name__ == "__main__":
+ #       import uvicorn
+  #      import webbrowser
+   #     import threading
+#
+ #       url = "http://127.0.0.1:8000/docs"
 
-    threading.Timer(1.0, lambda: webbrowser.open(url)).start()
-
-    uvicorn.run(
-        "main:app",
-        host="127.0.0.1",
-        port=8000,
-        reload=True
-    )
+ #       threading.Timer(1.0, lambda: webbrowser.open(url)).start()
+#
+ #       uvicorn.run(
+  #          "main:app",
+   #         host="127.0.0.1",
+    #        port=8000,
+     #      reload=True
+      #  )
+##
