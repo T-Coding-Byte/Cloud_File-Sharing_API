@@ -139,7 +139,7 @@ PASSWORD_RESET_KEY=your_reset_key
 
 | Method | Endpoint | Description |
 |---|---|---|
-| GET | `/storage/{storage_type}` | Switch active storage backend (`local` or `s3`) |
+| GET | `/storage/{storage_type}` | Switch active storage backend (`local` or `s3`). Upon switching, Storage on S3 and local will sync |
 
 ## Docker Architecture
 
