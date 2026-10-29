@@ -64,7 +64,7 @@ flowchart TD
 - **Storage:** Local filesystem / AWS S3
 - **Containerisation:** Docker + Docker Compose
 
-## Running the Project
+## Installation Guide
 
 ### 1. Clone the repository
 
